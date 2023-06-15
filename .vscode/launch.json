@@ -1,0 +1,11 @@
+{
+    "configurations": [
+    {
+        "name": "Attach",
+        "port": 9229,
+        "request": "attach",
+        "type": "node",
+        "webRoot": "${workspaceFolder}"
+    }
+    ]
+}

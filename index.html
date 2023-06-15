@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Personal Health Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body class="p-3 mb-2 bg-light text-dark">
+    <div class="container">
+        <h2 class="text-center py-4">Your Personal Health Profile</h2>
+
+        <div id="errorBox" class="alert alert-danger d-none"></div>
+
+        <form id="profileForm" class="text-center">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" class="form-control" id="age" placeholder="Enter your age">
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select class="form-control" id="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    <option value="preferNotToSay">Prefer Not to Say</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="medicalConditions">Medical Conditions:</label>
+                <textarea class="form-control" id="medicalConditions" placeholder="List your medical conditions"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="allergies">Allergies:</label>
+                <textarea class="form-control" id="allergies" placeholder="List your allergies"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="dietaryPreferences">Dietary Preferences:</label>
+                <select class="form-control" id="dietaryPreferences">
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="vegan">Vegan</option>
+                    <option value="pescatarian">Pescatarian</option>
+                    <option value="flexitarian">Flexitarian</option>
+                    <option value="paleo">Paleo</option>
+                    <option value="keto">Keto</option>
+                    <option value="atkins">Atkins</option>
+                    <option value="mediterranean">Mediterranean</option>
+                    <option value="dash">DASH (Dietary Approaches to Stop Hypertension)</option>
+                    <option value="intermittentFasting">Intermittent Fasting</option>
+                    <option value="glutenFree">Gluten-Free</option>
+                    <option value="lowFODMAP">Low-FODMAP</option>
+                    <option value="whole30">Whole30</option>
+                    <option value="rawFoodDiet">Raw Food Diet</option>
+                    <option value="kosher">Kosher</option>
+                    <option value="halal">Halal</option>
+                </select>
+            </div>            
+
+            <div class="form-group">
+                <label for="weeklyFoodBudget">Weekly Food Budget($):</label>
+                <input type="number" class="form-control" id="weeklyFoodBudget" placeholder="Enter your weekly food budget">
+            </div>
+            
+            <div class="form-group">
+                <label for="healthGoals">Health Goals:</label>
+                <textarea class="form-control" id="healthGoals" placeholder="Describe your health goals"></textarea>
+            </div>
+            
+            <button type="button" class="btn btn-primary mt-3" id="samsungHealthConnection">Connect to Samsung Health</button>
+            <button type="submit" class="btn btn-success mt-3">Save and Update Profile</button>
+        </form>
+
+        <div id="loader" class="d-none text-center">
+            <img src="loader.gif" alt="Loading..." /> <!--Replace 'loader.gif' with your loader gif file-->
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="button" class="btn btn-info" id="getRecommendations" disabled>Get Recommendations</button>
+        </div>
+
+        <h2 class="text-center py-4">Your Customized Diet</h2>
+        <div id="diet" class="overflow-auto" style="max-height: 200px;"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const userId = "a107f1d6-0b93-11ee-b8d6-828d48a46400"; // You may want to handle userId generation and assignment dynamically
+            
+            $('#profileForm').submit(function(e) {
+                e.preventDefault();
+                
+                const data = {
+                    userId: userId,
+                    answers: {
+                        diet: [$('#dietaryPreferences').val()],
+                        medicalConditions: $('#medicalConditions').val(),
+                        intolerances: $('#allergies').val(),
+                        healthGoals: $('#healthGoals').val(),
+                        budget: parseInt($('#weeklyFoodBudget').val())
+                    }
+                };
+                
+                axios.post('http://localhost:3000/profile', data)
+                    .then(function(response) {
+                        console.log(response);
+                        $('#getRecommendations').prop("disabled", false);
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                        $('#errorBox').text(`Error: ${error}`).removeClass('d-none');
+                    });
+            });
+
+            $('#getRecommendations').click(function() {
+                $('#loader').removeClass('d-none');
+
+                axios.get(`http://localhost:3000/profile/recommendations/${userId}`)
+                    .then(function(response) {
+                        console.log(response);
+                        $('#diet').text(response.data);
+                        $('#loader').addClass('d-none');
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                        $('#errorBox').text(`Error: ${error}`).removeClass('d-none');
+                        $('#loader').addClass('d-none');
+                    });
+            });
+
+            $('#samsungHealthConnection').click(function() {
+                // Implement functionality to connect the app to Samsung Health
+            });
+        });
+    </script>
+</body>
+</html>
